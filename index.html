@@ -407,11 +407,11 @@
         const milestonesContainer = document.querySelector('#milestones .space-y-10');
         milestonesData.forEach(item => {
             const milestoneElement = document.createElement('div');
-            milestoneElement.classList.add('milestone-item', 'relative', 'cursor-pointer', 'p-4', 'hover:bg-amber-50', 'rounded-md', 'transition-colors');
+            milestoneElement.classList.add('milestone-item', 'relative', 'cursor-pointer', 'p-4', 'hover:bg-amber-50', 'rounded-md', 'transition-all', 'border', 'border-transparent', 'hover:border-amber-300');
             milestoneElement.innerHTML = `
                 <div class="flex items-center mb-1">
                     <h3 class="text-xl font-semibold text-amber-700">${item.year} - ${item.title}</h3>
-                    <span class="ml-auto text-amber-600 transform transition-transform duration-300">▼</span>
+                    <span class="ml-auto text-amber-600 transform transition-transform duration-300 bg-amber-100 rounded-full w-6 h-6 flex items-center justify-center">▼</span>
                 </div>
                 <div class="milestone-content text-stone-600 pl-2 border-l-2 border-amber-200">
                     <p>${item.details}</p>
@@ -422,8 +422,24 @@
             milestoneElement.addEventListener('click', () => {
                 const content = milestoneElement.querySelector('.milestone-content');
                 const arrow = milestoneElement.querySelector('span');
+                
+                // Close all other open milestones
+                document.querySelectorAll('.milestone-content.open').forEach(openContent => {
+                    if (openContent !== content) {
+                        openContent.classList.remove('open');
+                        openContent.closest('.milestone-item').querySelector('span').style.transform = 'rotate(0deg)';
+                        openContent.closest('.milestone-item').classList.remove('bg-amber-50');
+                    }
+                });
+                
                 content.classList.toggle('open');
                 arrow.style.transform = content.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
+                
+                if (content.classList.contains('open')) {
+                    milestoneElement.classList.add('bg-amber-50');
+                } else {
+                    milestoneElement.classList.remove('bg-amber-50');
+                }
             });
         });
 
@@ -443,15 +459,25 @@
         const funFactsGrid = document.getElementById('fun-facts-grid');
         funFactsData.forEach(fact => {
             const factCard = document.createElement('div');
-            factCard.classList.add('fact-card', 'h-48', 'cursor-pointer', 'rounded-lg', 'shadow-lg', 'hover:shadow-xl', 'transition-shadow'); // Added shadow classes
+            factCard.classList.add('fact-card', 'h-48', 'cursor-pointer', 'rounded-lg', 'shadow-lg', 'hover:shadow-xl', 'transition-all', 'transform', 'hover:-translate-y-1'); 
             factCard.innerHTML = `
                 <div class="fact-card-inner">
                     <div class="fact-card-front">
                         <h4 class="text-lg font-semibold">${fact.title}</h4>
                         <p class="text-sm mt-2">(Click to reveal)</p>
+                        <div class="absolute bottom-2 right-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
                     </div>
                     <div class="fact-card-back">
                         <p class="text-sm">${fact.details}</p>
+                        <div class="absolute bottom-2 right-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                            </svg>
+                        </div>
                     </div>
                 </div>
             `;
@@ -472,13 +498,71 @@
         ];
 
         const devHumorContainer = document.getElementById('dev-humor-container');
-        devHumorData.forEach(item => {
+        devHumorData.forEach((item, index) => {
             const humorElement = document.createElement('div');
-            humorElement.classList.add('bg-amber-100', 'p-4', 'rounded-lg', 'shadow', 'hover:shadow-md', 'transition-shadow', 'transform', 'hover:-translate-y-1', 'hover:bg-amber-50', 'transition-all');
+            humorElement.classList.add('bg-amber-100', 'p-4', 'rounded-lg', 'shadow', 'hover:shadow-md', 'transition-all', 'transform', 'hover:-translate-y-1', 'hover:bg-amber-50', 'cursor-pointer');
             humorElement.innerHTML = `<p class="text-stone-700">${item.text}</p>`;
+            
+            // Add animation with a delay based on index
+            humorElement.style.opacity = '0';
+            humorElement.style.transform = 'translateY(20px)';
+            humorElement.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            
+            setTimeout(() => {
+                humorElement.style.opacity = '1';
+                humorElement.style.transform = 'translateY(0)';
+            }, 100 * index);
+            
+            // Add a click effect
+            humorElement.addEventListener('click', () => {
+                humorElement.classList.add('bg-amber-200');
+                setTimeout(() => {
+                    humorElement.classList.remove('bg-amber-200');
+                }, 300);
+            });
+            
             devHumorContainer.appendChild(humorElement);
         });
 
+        // Add scroll-to-top button functionality
+        const scrollToTopButton = document.createElement('button');
+        scrollToTopButton.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+            </svg>
+        `;
+        scrollToTopButton.classList.add('fixed', 'bottom-8', 'right-8', 'bg-amber-600', 'text-white', 'rounded-full', 'p-3', 'shadow-lg', 'hover:bg-amber-700', 'transition-all', 'transform', 'hover:scale-110', 'z-50', 'opacity-0', 'pointer-events-none');
+        document.body.appendChild(scrollToTopButton);
+        
+        // Show/hide the button based on scroll position
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                scrollToTopButton.classList.add('opacity-100');
+                scrollToTopButton.classList.remove('opacity-0', 'pointer-events-none');
+            } else {
+                scrollToTopButton.classList.add('opacity-0', 'pointer-events-none');
+                scrollToTopButton.classList.remove('opacity-100');
+            }
+        });
+        
+        // Scroll to top when clicked
+        scrollToTopButton.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        
+        // Add smooth scroll to all anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
     </script>
 </body>
 </html>
